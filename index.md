@@ -60,12 +60,11 @@ from tqdm import tqdm
 import io
 
 #Specify the directory for the papers
-#papers_directory = 'C:/Users/Me/Desktop/pdf'
-papers_directory = 'C:/Users/backal/Desktop/pdf'
+papers_directory = ''
 
 # Specify the output directory for the text versions of the papers
 #output_directory = 'C:/Users/Me/Desktop/text'
-output_directory = 'C:/Users/backal/Desktop/text'
+output_directory = ''
 
 # Find all of the files in the input directory
 files = os.listdir(papers_directory)
@@ -96,3 +95,70 @@ for index in tqdm(range(len(pdf_files))):
         else:
                 print('The file ' + pdf_files[index] + ' was already converted to a .txt file')
 ```
+
+# 3. Combine the data from web of science
+Next, the data from web of science was colleted. The data from web of science came from two places. One data set was obtained from creating a citation report from the Journal of Quality technology and the other was from exporting data from Web of Science. The citation report was given in three excel files that were combined with cleanWebOfScience.py which is shown below. 
+
+```python 
+
+import pandas as pd
+import os
+import re
+
+
+self_path = os.path.dirname(os.path.realpath(__file__))
+
+self_path = re.sub(r'\\','/',self_path)
+os.chdir(self_path)
+
+excel_files = []
+files_to_join = []
+for file in os.listdir():
+    if file.endswith(".xls"):
+        excel_files.append(file)
+
+for excel_file in excel_files:
+    excel_file = pd.read_excel(excel_file, index=False)
+    files_to_join.append(excel_file)
+
+merged_frames = pd.concat(files_to_join)
+merged_frames = merged_frames.sort_values(by=['Publication Year'])
+merged_frames = merged_frames.reset_index()
+merged_frames.to_csv(self_path+'/combinedWebOfScience.csv')
+```
+
+Then the export data was downloaded from web of science. This data was also downloaded as three excel files and were combined using CleanWebOfScienceExport.py. The code used to combine these files is shown below. 
+
+```python
+import pandas as pd
+
+data1 = pd.read_table('savedrecs.txt')
+data2 = pd.read_table('savedrecs (1).txt') 
+data3 = pd.read_table('savedrecs (2).txt')
+
+combinedData = [data1, data2, data3]
+combinedData = pd.concat(combinedData,ignore_index=True)
+
+FieldTags = pd.read_csv('FieldTags.csv', header=None, index_col=0, squeeze=True).to_dict()
+
+combinedData = combinedData.rename(columns=FieldTags)
+combinedData = combinedData.dropna(axis=1,how='all')
+combinedData = combinedData.drop(columns=['ZR','ZS'])
+combinedData = combinedData.sort_values(by=['Title'])
+combinedData = combinedData.reset_index(drop=True)
+combinedData.to_csv('combinedDataExport.csv')
+```
+
+Then the data from the citation report and the export were combined using CombinedExportAndCitation.py. The code for this file is shown below. 
+
+```python
+import pandas as pd
+
+data1 = pd.read_csv('combinedDataCitationReport.csv',index_col=0)
+data2 = pd.read_csv('combinedDataExport.csv',index_col=0)
+
+combinedData = [data1, data2]
+combinedData = pd.concat(combinedData, axis=1, sort=False)
+combinedData = combinedData.dropna(axis=1,how='all')
+combinedData.to_csv('combinedCitationExport.csv')
+```  
