@@ -1,8 +1,14 @@
 # Documentation For Impactful Paper Project
-# 1. Download the papers from asq.org
+
+# Table of Contents
+1. [Download the papers from asq.org](#Downloadthepapersfromasq.org)
+2. [Convert the pdf files obtained to text files](#Convertthepdffiles)
+3. [Combine the data from web of science](#Combinethedatas)
+
+# 1. Download the papers from asq.org <a name="Downloadthepapersfromasq.org"></a>
 This step was done using the browser autmoation tool Selenium. To protect the web site from crawlers, it was decided to not include the code for this step.
 
-# 2. Convert the pdf files obtained to text files
+# 2. Convert the pdf files obtained to text files <a name="Convertthepdffiles"></a>
 Based on example code listed on [stackoverflow](https://stackoverflow.com/questions/39854841/pdfminer-python-3-5), a python definition was created to convert pdf files to text files. This function is class pdfReader.py. The code for this definition is show below. This code will take in a pdf file and convert it to a text file.
 
 ```python
@@ -96,7 +102,7 @@ for index in tqdm(range(len(pdf_files))):
                 print('The file ' + pdf_files[index] + ' was already converted to a .txt file')
 ```
 
-# 3. Combine the data from web of science
+# 3. Combine the data from web of science <a name="Combinethedata"></a>
 Next, the data from web of science was colleted. The data from web of science came from two places. One data set was obtained from creating a citation report from the Journal of Quality technology and the other was from exporting data from Web of Science. The citation report was given in three excel files that were combined with cleanWebOfScience.py which is shown below. 
 
 ```python 
