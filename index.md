@@ -1,11 +1,11 @@
-##### Documentation For Impactful Paper Project
-#### 1. Download the papers from asq.org
+# Documentation For Impactful Paper Project
+# 1. Download the papers from asq.org
 This step was done using the browser autmoation tool Selenium. To protect the web site from crawlers, it was decided to not include the code for this step.
 
-#### 2. Convert the pdf files obtained to text files
-Based on example code listed on [stackoverflow](https://stackoverflow.com/questions/39854841/pdfminer-python-3-5), a python definition was created to convert pdf files to text files. This function is class pdfReader.py The code for this definition is show below. This code will take in a pdf file and convert it to a text file.
+# 2. Convert the pdf files obtained to text files
+Based on example code listed on [stackoverflow](https://stackoverflow.com/questions/39854841/pdfminer-python-3-5), a python definition was created to convert pdf files to text files. This function is class pdfReader.py. The code for this definition is show below. This code will take in a pdf file and convert it to a text file.
 
-'''python
+```python
 from pdfminer.pdfparser import PDFParser
 from pdfminer.pdfdocument import PDFDocument
 from pdfminer.pdfpage import PDFPage
@@ -48,11 +48,11 @@ def pdfReader(fname, outputFile, pages=None):
             f.write(text)
     except:
         print('Could not convert '+outputFile+'.txt'+ ' to text'
-'''
+```
 
 The script all_pdf_to_text.py was used to convert all of the papers to text from pdf using pdfReader.py. This code will take all of the pdf files in the directory that this file is stored in and convert them to text. The code for this file is shown below. 
 
-'''python
+```python
 import os
 from pdfReader import pdfReader
 from tqdm import tqdm_gui
@@ -95,4 +95,4 @@ for index in tqdm(range(len(pdf_files))):
                 pdfReader(input_file, output)
         else:
                 print('The file ' + pdf_files[index] + ' was already converted to a .txt file')
-'''
+```
