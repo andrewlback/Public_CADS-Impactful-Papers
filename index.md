@@ -3,7 +3,7 @@
 # Table of Contents
 1. [Download the papers from asq.org](#Downloadthepapersfromasq.org)
 2. [Convert the pdf files obtained to text files](#Convertthepdffiles)
-3. [Combine the data from web of science](#Combinethedatas)
+3. [Combine the data from web of science](#Combinethedata)
 
 # 1. Download the papers from asq.org <a name="Downloadthepapersfromasq.org"></a>
 This step was done using the browser autmoation tool Selenium. To protect the web site from crawlers, it was decided to not include the code for this step.
