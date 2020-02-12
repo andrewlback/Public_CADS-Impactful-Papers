@@ -4,7 +4,7 @@
 1. [Download the papers from asq.org](#Downloadthepapersfromasq.org)
 2. [Convert the pdf files obtained to text files](#Convertthepdffiles)
 3. [Combine the data from web of science](#Combinethedata)
-4. [Match the text files to the titles of the files listed in Web of Science](#titlesaAndFiles)
+4. [Match the text files to the titles of the files listed in Web of Science](#titlesAndFiles)
 
 # 1. Download the papers from asq.org <a name="Downloadthepapersfromasq.org"></a>
 This step was done using the browser autmoation tool Selenium. To protect the web site from crawlers, it was decided to not include the code for this step.
@@ -169,7 +169,7 @@ combinedData = pd.concat(combinedData, axis=1, sort=False)
 combinedData = combinedData.dropna(axis=1,how='all')
 combinedData.to_csv('combinedCitationExport.csv')
 ```  
-# 4. Match the text files to the titles of the files listed in Web of Science <a name="titlesAndFIles"></a>
+# 4. Match the text files to the titles of the files listed in Web of Science <a name="titlesAndFiles"></a>
 
 When the papers were downloaded from the Journal of Quality Technology, their convention was to name the file as the title of the publication with an added .pdf. Once these were converted to text, the name would be changed to the title of the publication with .txt added. Unfortunately, the titles expressed throught the file name were not the same as the names listed in the Web of Science data. Usually they would be off by a letter or two or a number would be spelled versus expressed in characters. Because of this, a Python script called findPapersNotInWebOfScience.py was written to match the titles from the files to the titles given by the Web of Science data. This script works by using fuzzy logic, which compares the difference between the Web of Science titles and the file titles and computes a simularity percentage. The code then matches each Web of Science title with a file title according to the highest simularity score. The code is shown below. 
 
@@ -255,3 +255,4 @@ for title in web_of_science_titles:
         print(str(title) + ' not in folder')
 
 ```
+
