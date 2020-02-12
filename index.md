@@ -453,3 +453,33 @@ dataframe_occurances = pd.DataFrame(number_of_occurances_data, columns=['Title']
 
 dataframe_occurances.to_csv('Keywords.csv')
 ```
+
+# 6. Combined the data from the keywords, the number of figures and tables, and the Web of Science data
+
+The last step in creating the data set is to combine all of the data into a csv file. The code for this is called TotalCombinedData.py and is shown below. 
+
+```python
+import pandas as pd
+
+
+Citation_Export = pd.read_csv('Citation_Export_BDR.csv')
+Citation_Export = Citation_Export.sort_values(by=['Title'])
+Citation_Export = Citation_Export.reset_index(drop=True)
+
+Keywords = pd.read_csv('Keywords.csv')
+Keywords= Keywords.sort_values(by=['Title'])
+Keywords = Keywords.reset_index(drop=True)
+
+findText = pd.read_csv('findText.csv')
+findText = findText.sort_values(by=['Title'])
+findText = findText.reset_index(drop=True)
+
+TotalCombined = pd.concat([Citation_Export, Keywords, findText], axis=1, sort = False)
+
+# Remove all untitled columns from the total combined data
+TotalCombined= TotalCombined.drop(columns = ['Unnamed: 0', 'Unnamed: 0.1', 'Title.1'])
+
+
+
+TotalCombined.to_csv('TotalCombined.csv')
+```
