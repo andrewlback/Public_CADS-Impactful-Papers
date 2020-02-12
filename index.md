@@ -6,6 +6,7 @@
 3. [Combine the data from web of science](#Combinethedata)
 4. [Match the text files to the titles of the files listed in Web of Science](#titlesAndFiles)
 5. [Find the Keywords in the abstract of the papers and the number of figures and tables](#findText)
+6. [Combined the data from the keywords, the number of figures and tables, and the Web of Science data](#combine)
 
 # 1. Download the papers from asq.org <a name="Downloadthepapersfromasq.org"></a>
 This step was done using the browser autmoation tool Selenium. To protect the web site from crawlers, it was decided to not include the code for this step.
@@ -454,7 +455,7 @@ dataframe_occurances = pd.DataFrame(number_of_occurances_data, columns=['Title']
 dataframe_occurances.to_csv('Keywords.csv')
 ```
 
-# 6. Combined the data from the keywords, the number of figures and tables, and the Web of Science data
+# 6. Combined the data from the keywords, the number of figures and tables, and the Web of Science data <a name="combine"></a>
 
 The last step in creating the data set is to combine all of the data into a csv file. The code for this is called TotalCombinedData.py and is shown below. 
 
