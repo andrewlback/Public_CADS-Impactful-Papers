@@ -4,6 +4,7 @@
 1. [Download the papers from asq.org](#Downloadthepapersfromasq.org)
 2. [Convert the pdf files obtained to text files](#Convertthepdffiles)
 3. [Combine the data from web of science](#Combinethedata)
+4. [Match the text files to the titles of the files listed in Web of Science](#titlesaAndFiles)
 
 # 1. Download the papers from asq.org <a name="Downloadthepapersfromasq.org"></a>
 This step was done using the browser autmoation tool Selenium. To protect the web site from crawlers, it was decided to not include the code for this step.
@@ -168,3 +169,89 @@ combinedData = pd.concat(combinedData, axis=1, sort=False)
 combinedData = combinedData.dropna(axis=1,how='all')
 combinedData.to_csv('combinedCitationExport.csv')
 ```  
+# 4. Match the text files to the titles of the files listed in Web of Science <a name="titlesAndFIles"></a>
+
+When the papers were downloaded from the Journal of Quality Technology, their convention was to name the file as the title of the publication with an added .pdf. Once these were converted to text, the name would be changed to the title of the publication with .txt added. Unfortunately, the titles expressed throught the file name were not the same as the names listed in the Web of Science data. Usually they would be off by a letter or two or a number would be spelled versus expressed in characters. Because of this, a Python script called findPapersNotInWebOfScience.py was written to match the titles from the files to the titles given by the Web of Science data. This script works by using fuzzy logic, which compares the difference between the Web of Science titles and the file titles and computes a simularity percentage. The code then matches each Web of Science title with a file title according to the highest simularity score. The code is shown below. 
+
+```python
+import os
+import io
+import pandas as pd
+from fuzzywuzzy import fuzz,process
+from tqdm import tqdm
+
+#Specify the directory for the papers
+input_directory = ''
+os.chdir('')
+
+# Find all of the files in the input directory
+files = os.listdir(input_directory)
+files.sort()
+
+# Load the names of the titles from pandas
+df = pd.read_csv('combinedCitationExport.csv')
+titles = df['Title']
+titles
+titles = titles.tolist()
+titles.sort()
+
+
+matching_files=[]
+scores = []
+no_matches = []
+used_files = []
+
+for index in tqdm(range(len(titles))):
+    max_score = -1
+    title = titles[index].lower()
+    for file in files:
+        lowered_file = file.lower()
+        score = fuzz.ratio(title,lowered_file)
+        if score > max_score:
+            max_score = score
+            matching_file = file
+    if max_score>=65:
+        matching_files.append(matching_file)
+        scores.append(max_score)
+        used_files.append(matching_file)
+    else:
+        matching_files.append('No match')
+        scores.append(max_score)
+        no_matches.append(titles[index])
+
+matching_files = pd.DataFrame(matching_files, columns=['matching titles'])
+scores = pd.DataFrame(scores, columns=['scores'])
+titles = df['Title']
+files = pd.DataFrame(files,columns=['files'])
+no_matches = pd.DataFrame(no_matches, columns=['Title that didnt match'])
+
+data = pd.concat([files, titles,matching_files,scores, no_matches], axis=1, sort=False)
+data.to_csv('TitlesAndFiles.csv')
+
+titles_and_files = pd.read_csv('TitlesAndFiles.csv')
+web_of_science_titles = titles_and_files['matching titles']
+web_of_science_titles = web_of_science_titles.tolist()
+web_of_science_titles = [x for x in web_of_science_titles if str(x) != 'nan']
+print(len(web_of_science_titles))
+
+# Find all of the files in the input directory
+os.chdir('')
+files = os.listdir()
+filesdf = pd.DataFrame(files)
+
+for file in files:
+    if file in web_of_science_titles:
+        from shutil import copyfile
+        copyfile(''+file, ''+file)
+
+
+# Show titles and files together
+test = pd.DataFrame(web_of_science_titles)
+alldf = pd.concat([test,filesdf],axis=1)
+alldf.to_csv('alltestdf.csv')
+
+for title in web_of_science_titles:
+    if title not in files:
+        print(str(title) + ' not in folder')
+
+```
