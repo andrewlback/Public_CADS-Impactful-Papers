@@ -13,6 +13,7 @@
     - [Remove Years not needed on the data set](#clean-1)
     - [Remove columns with digital ID's](#clean-2)
     - [Remove columns from previous analysis](#clean-3)
+    - [Create a column for number of pages](#clean-4)
 
 # Goal of Analysis <a name="goal"></a>
 The goal of this project is to analyze which papers will recieve the most number of citations. 
@@ -582,6 +583,9 @@ key_words = [
 ]
 data_set = data_set.drop(columns=key_words)
 ```
+## Create a column for number of pages <a name="clean-4"></a>
+There is a column for start page and end page. The code shown below will subtract the two to come up with a total number of pages for each paper. 
+
 
 
 
