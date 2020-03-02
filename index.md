@@ -8,8 +8,8 @@
 5. [Find the Keywords in the abstract of the papers and the number of figures and tables](#findText)
 6. [Remove one instance of bad data](#baddata)
 7. [Combined the data from the keywords, the number of figures and tables, and the Web of Science data](#combine)
-8. [Additional Cleaning on the Data Set][#clean]
-    - [Remove Years not needed on the data set][#clean-1]
+8. [Additional Cleaning on the Data Set](#clean)
+    - [Remove Years not needed on the data set](#clean-1)
 # 1. Download the papers from asq.org <a name="Downloadthepapersfromasq.org"></a>
 This step was done using the browser autmoation tool Selenium. To protect the web site from crawlers, it was decided to not include the code for this step.
 
