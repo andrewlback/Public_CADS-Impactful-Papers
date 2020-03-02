@@ -1,6 +1,7 @@
 # Documentation For Impactful Paper Project
 
 # Table of Contents
+[Goal of Analysis](#goal)
 1. [Download the papers from asq.org](#Downloadthepapersfromasq.org)
 2. [Convert the pdf files obtained to text files](#Convertthepdffiles)
 3. [Combine the data from web of science](#Combinethedata)
@@ -10,6 +11,12 @@
 7. [Combined the data from the keywords, the number of figures and tables, and the Web of Science data](#combine)
 8. [Additional Cleaning on the Data Set](#clean)
     - [Remove Years not needed on the data set](#clean-1)
+    - [Remove columns with digital ID's](#clean-2)
+    - [Remove columns from previous analysis](#clean-3)
+
+# Goal of Analysis <a name="goal"></a>
+The goal of this project is to analyze which papers will recieve the most number of citations. 
+
 # 1. Download the papers from asq.org <a name="Downloadthepapersfromasq.org"></a>
 This step was done using the browser autmoation tool Selenium. To protect the web site from crawlers, it was decided to not include the code for this step.
 
@@ -513,7 +520,7 @@ TotalCombined.to_csv('TotalCombined.csv')
 # 8. Additional Cleaning on the Data Set <a name="clean"></a>
 This section describes the additional cleaning done on the data set. The additional cleaning is found in the file DataCleaning.py
 
-## - Remove Years not needed on the data set <a name="clean-1"></a>
+## Remove Years not needed on the data set <a name="clean-1"></a>
 The web of science data provided a column for each year from 1864 to the present. Since the data that is being studied only starts at 1977, there is no need for these additional columns. The code for this is shown below. 
 
 ```python 
@@ -527,3 +534,54 @@ for year in bad_years:
 
 data_set.to_csv('TotalCombinedCleaned.csv')
 ```
+
+## Remove columns with digital ID's <a name="clean-2"></a>
+
+The web of science data included digitial ID's for the papers. These will not be useful for the modelling so they were removed. 
+
+```python
+# Remove columns that were created for ID's
+columns_to_drop = ["DOI", "ResearcherID Number", "ORCID Identifier (Open Researcher and Contributor ID)", 
+                    "Digital Object Identifier (DOI)", "EA", "International Standard Serial Number (ISSN)", 
+                    "Electronic International Standard Serial Number (eISSN)", "Accession Number / ISI Unique Article Identifier", 
+                    "Full Source Title (includes title and subtitle)"]
+data_set = data_set.drop(columns=columns_to_drop)
+```
+
+## Remove columns from previous analysis  <a name="clean-3"></a>
+The columns that included the keywords from the paper surveying keywords in a medical journal did not apply well to the journal that is being studied. Thus the keywords columns were removed from the data set. 
+
+```python
+# Remove keywords from previous analysis
+key_words = [
+    'novel',
+    'favorable',
+    'promising',
+    'unique',
+    'excellent',
+    'robust',
+    'prominant',
+    'supportive',
+    'encouraging',
+    'remarkable'
+    'innovative',
+    'bright',
+    'unprecedented',
+    'reassuring',
+    'enormous',
+    'hopeful',
+    'creative',
+    'assuring',
+    'astonishing',
+    'inventive',
+    'spectacular',
+    'amazing',
+    'groundbreaking',
+    'inspiring',
+    'phenomenal'
+]
+data_set = data_set.drop(columns=key_words)
+```
+
+
+
