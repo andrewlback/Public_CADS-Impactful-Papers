@@ -8,7 +8,8 @@
 5. [Find the Keywords in the abstract of the papers and the number of figures and tables](#findText)
 6. [Remove one instance of bad data](#baddata)
 7. [Combined the data from the keywords, the number of figures and tables, and the Web of Science data](#combine)
-
+8. [Additional Cleaning on the Data Set][#clean]
+    - [Remove Years not needed on the data set][#clean-1]
 # 1. Download the papers from asq.org <a name="Downloadthepapersfromasq.org"></a>
 This step was done using the browser autmoation tool Selenium. To protect the web site from crawlers, it was decided to not include the code for this step.
 
@@ -482,7 +483,7 @@ TitlesAndFiles_BDR.to_csv('TitlesAndFiles_BDR.csv')
 
 # 7. Combined the data from the keywords, the number of figures and tables, and the Web of Science data <a name="combine"></a>
 
-The last step in creating the data set is to combine all of the data into a csv file. The code for this is called TotalCombinedData.py and is shown below. 
+The last step in creating the data set is to combine all of the data into a .csv file. The code for this is called TotalCombinedData.py and is shown below. 
 
 ```python
 import pandas as pd
@@ -508,4 +509,21 @@ TotalCombined= TotalCombined.drop(columns = ['Unnamed: 0', 'Unnamed: 0.1', 'Titl
 
 
 TotalCombined.to_csv('TotalCombined.csv')
+```
+# 8. Additional Cleaning on the Data Set <a name="clean"></a>
+This section describes the additional cleaning done on the data set. The additional cleaning is found in the file DataCleaning.py
+
+## - Remove Years not needed on the data set <a name="clean-1"></a>
+The web of science data provided a column for each year from 1864 to the present. Since the data that is being studied only starts at 1977, there is no need for these additional columns. The code for this is shown below. 
+
+```python 
+
+data_set = pd.read_csv('TotalCombined.csv', index_col=0)
+
+# Since the articles only go back to 1977, all previous years before then can be removed from the columns
+bad_years = range(1864, 1976)
+for year in bad_years:
+    data_set = data_set.drop(columns=str(year))
+
+data_set.to_csv('TotalCombinedCleaned.csv')
 ```
