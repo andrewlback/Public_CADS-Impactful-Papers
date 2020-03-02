@@ -6,7 +6,8 @@
 3. [Combine the data from web of science](#Combinethedata)
 4. [Match the text files to the titles of the files listed in Web of Science](#titlesAndFiles)
 5. [Find the Keywords in the abstract of the papers and the number of figures and tables](#findText)
-6. [Combined the data from the keywords, the number of figures and tables, and the Web of Science data](#combine)
+6. [Remove one instance of bad data](#baddata)
+7. [Combined the data from the keywords, the number of figures and tables, and the Web of Science data](#combine)
 
 # 1. Download the papers from asq.org <a name="Downloadthepapersfromasq.org"></a>
 This step was done using the browser autmoation tool Selenium. To protect the web site from crawlers, it was decided to not include the code for this step.
@@ -455,7 +456,31 @@ dataframe_occurances = pd.DataFrame(number_of_occurances_data, columns=['Title']
 dataframe_occurances.to_csv('Keywords.csv')
 ```
 
-# 6. Combined the data from the keywords, the number of figures and tables, and the Web of Science data <a name="combine"></a>
+# 6. Remove on instance of bad data <a name="baddata"></a>
+One paper was accidently published  in the Journal of Quality Technology with its tables missing, and so a follow up paper was published with the tables. The Web of Science database treats these as two different papers, and so the paper was deleted from the analysis. The code to delete this from the data set is shown below. 
+
+```python
+# There is one paper that was published without tables, and so a follow up paper 
+# was published with the tables. Since web of science treats these as two seperate papers, both will be deleted
+# in order to prevent the model from messing up. 
+
+import pandas as pd
+
+Citation_Export = pd.read_csv('combinedCitationExport.csv')
+# BDR = Bad Data Removed
+Citation_Export = Citation_Export[Citation_Export.Title != 'PERFORMANCE OF MIL-STD-105D UNDER SWITCHING RULES .1. EVALUATION']
+Citation_Export_BDR = Citation_Export[Citation_Export.Title !='PERFORMANCE OF MIL-STD-105D UNDER SWITCHING RULES .2. TABLES']
+Citation_Export_BDR.to_csv('Citation_Export_BDR.csv')
+
+
+TitlesAndFiles = pd.read_csv('TitlesAndFiles.csv')
+# BDR = Bad Data Removed
+TitlesAndFiles = TitlesAndFiles[TitlesAndFiles.Title != 'PERFORMANCE OF MIL-STD-105D UNDER SWITCHING RULES .1. EVALUATION']
+TitlesAndFiles_BDR = TitlesAndFiles[TitlesAndFiles.Title !='PERFORMANCE OF MIL-STD-105D UNDER SWITCHING RULES .2. TABLES']
+TitlesAndFiles_BDR.to_csv('TitlesAndFiles_BDR.csv')
+```
+
+# 7. Combined the data from the keywords, the number of figures and tables, and the Web of Science data <a name="combine"></a>
 
 The last step in creating the data set is to combine all of the data into a csv file. The code for this is called TotalCombinedData.py and is shown below. 
 
