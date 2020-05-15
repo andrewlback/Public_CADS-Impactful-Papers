@@ -1,12 +1,27 @@
+---
+output: html_document
+---
+
 # Documentation For Impactful Paper Project
 
 # Table of Contents
+[Goal of Analysis](#goal)
 1. [Download the papers from asq.org](#Downloadthepapersfromasq.org)
 2. [Convert the pdf files obtained to text files](#Convertthepdffiles)
 3. [Combine the data from web of science](#Combinethedata)
 4. [Match the text files to the titles of the files listed in Web of Science](#titlesAndFiles)
 5. [Find the Keywords in the abstract of the papers and the number of figures and tables](#findText)
-6. [Combined the data from the keywords, the number of figures and tables, and the Web of Science data](#combine)
+6. [Remove one instance of bad data](#baddata)
+7. [Combined the data from the keywords, the number of figures and tables, and the Web of Science data](#combine)
+8. [Additional Cleaning on the Data Set](#clean)
+    - [Remove Years not needed on the data set](#clean-1)
+    - [Remove columns with digital ID's](#clean-2)
+    - [Remove columns from previous analysis](#clean-3)
+    - [Create a column for number of pages](#clean-4)
+9. [Create plots to explore which variables will effect number of citations](#plots)
+
+# Goal of Analysis <a name="goal"></a>
+The goal of this project is to analyze which papers will recieve the most number of citations. 
 
 # 1. Download the papers from asq.org <a name="Downloadthepapersfromasq.org"></a>
 This step was done using the browser autmoation tool Selenium. To protect the web site from crawlers, it was decided to not include the code for this step.
@@ -455,9 +470,33 @@ dataframe_occurances = pd.DataFrame(number_of_occurances_data, columns=['Title']
 dataframe_occurances.to_csv('Keywords.csv')
 ```
 
-# 6. Combined the data from the keywords, the number of figures and tables, and the Web of Science data <a name="combine"></a>
+# 6. Remove on instance of bad data <a name="baddata"></a>
+One paper was accidently published  in the Journal of Quality Technology with its tables missing, and so a follow up paper was published with the tables. The Web of Science database treats these as two different papers, and so the paper was deleted from the analysis. The code to delete this from the data set is shown below. 
 
-The last step in creating the data set is to combine all of the data into a csv file. The code for this is called TotalCombinedData.py and is shown below. 
+```python
+# There is one paper that was published without tables, and so a follow up paper 
+# was published with the tables. Since web of science treats these as two seperate papers, both will be deleted
+# in order to prevent the model from messing up. 
+
+import pandas as pd
+
+Citation_Export = pd.read_csv('combinedCitationExport.csv')
+# BDR = Bad Data Removed
+Citation_Export = Citation_Export[Citation_Export.Title != 'PERFORMANCE OF MIL-STD-105D UNDER SWITCHING RULES .1. EVALUATION']
+Citation_Export_BDR = Citation_Export[Citation_Export.Title !='PERFORMANCE OF MIL-STD-105D UNDER SWITCHING RULES .2. TABLES']
+Citation_Export_BDR.to_csv('Citation_Export_BDR.csv')
+
+
+TitlesAndFiles = pd.read_csv('TitlesAndFiles.csv')
+# BDR = Bad Data Removed
+TitlesAndFiles = TitlesAndFiles[TitlesAndFiles.Title != 'PERFORMANCE OF MIL-STD-105D UNDER SWITCHING RULES .1. EVALUATION']
+TitlesAndFiles_BDR = TitlesAndFiles[TitlesAndFiles.Title !='PERFORMANCE OF MIL-STD-105D UNDER SWITCHING RULES .2. TABLES']
+TitlesAndFiles_BDR.to_csv('TitlesAndFiles_BDR.csv')
+```
+
+# 7. Combined the data from the keywords, the number of figures and tables, and the Web of Science data <a name="combine"></a>
+
+The last step in creating the data set is to combine all of the data into a .csv file. The code for this is called TotalCombinedData.py and is shown below. 
 
 ```python
 import pandas as pd
@@ -484,3 +523,109 @@ TotalCombined= TotalCombined.drop(columns = ['Unnamed: 0', 'Unnamed: 0.1', 'Titl
 
 TotalCombined.to_csv('TotalCombined.csv')
 ```
+# 8. Additional Cleaning on the Data Set <a name="clean"></a>
+This section describes the additional cleaning done on the data set. The additional cleaning is found in the file DataCleaning.py
+
+## Remove Years not needed on the data set <a name="clean-1"></a>
+The web of science data provided a column for each year from 1864 to the present. Since the data that is being studied only starts at 1977, there is no need for these additional columns. The code for this is shown below. 
+
+```python 
+
+data_set = pd.read_csv('TotalCombined.csv', index_col=0)
+
+# Since the articles only go back to 1977, all previous years before then can be removed from the columns
+bad_years = range(1864, 1976)
+for year in bad_years:
+    data_set = data_set.drop(columns=str(year))
+
+data_set.to_csv('TotalCombinedCleaned.csv')
+```
+
+## Remove columns with digital ID's <a name="clean-2"></a>
+
+The web of science data included digitial ID's for the papers. These will not be useful for the modelling so they were removed. 
+
+```python
+# Remove columns that were created for ID's
+columns_to_drop = ["DOI", "ResearcherID Number", "ORCID Identifier (Open Researcher and Contributor ID)", 
+                    "Digital Object Identifier (DOI)", "EA", "International Standard Serial Number (ISSN)", 
+                    "Electronic International Standard Serial Number (eISSN)", "Accession Number / ISI Unique Article Identifier", 
+                    "Full Source Title (includes title and subtitle)"]
+data_set = data_set.drop(columns=columns_to_drop)
+```
+
+## Remove columns from previous analysis  <a name="clean-3"></a>
+The columns that included the keywords from the paper surveying keywords in a medical journal did not apply well to the journal that is being studied. Thus the keywords columns were removed from the data set. 
+
+```python
+# Remove keywords from previous analysis
+key_words = [
+    'novel',
+    'favorable',
+    'promising',
+    'unique',
+    'excellent',
+    'robust',
+    'prominant',
+    'supportive',
+    'encouraging',
+    'remarkable'
+    'innovative',
+    'bright',
+    'unprecedented',
+    'reassuring',
+    'enormous',
+    'hopeful',
+    'creative',
+    'assuring',
+    'astonishing',
+    'inventive',
+    'spectacular',
+    'amazing',
+    'groundbreaking',
+    'inspiring',
+    'phenomenal'
+]
+data_set = data_set.drop(columns=key_words)
+```
+## Create a column for number of pages <a name="clean-4"></a>
+There is a column for start page and end page. The code shown below will subtract the two to come up with a total number of pages for each paper. 
+
+```python 
+total_pages = data_set["Ending Page"] - data_set["Beginning Page"]
+data_set['total number of pages'] = total_pages
+```
+
+# 9. Create plots to explore which variables will effect number of citations <a name="plots"></a>
+
+```{r}
+df <- read.csv("TotalCombinedCleaned.csv")
+
+# Plot number of figures vs. citations
+plot(df$number.of.figures, df$Total.Citations)
+
+# Plot number of tables vs. citations
+plot(df$number.of.tables, df$Total.Citations)
+
+# Plot number of pages vs citations
+plot(df$total.number.of.pages, df$Total.Citations, ylim = c(0, 1500))
+```
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+df <- read.csv("TotalCombinedCleaned.csv")
+
+# Plot number of figures vs. citations
+plot(df$number.of.figures, df$Total.Citations)
+
+# Plot number of tables vs. citations
+plot(df$number.of.tables, df$Total.Citations)
+
+# Plot number of pages vs citations
+plot(df$total.number.of.pages, df$Total.Citations, ylim = c(0, 1500))
+```
+
